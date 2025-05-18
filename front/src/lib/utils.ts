@@ -52,7 +52,7 @@ export async function fetchFormData<T = any>(
             throw error;
         }
 
-        return data.posts as T;
+        return data as T;
     } catch (err: any) {
         console.error('Form fetch error:', err);
         throw err;

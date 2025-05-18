@@ -22,12 +22,13 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const fetchArticles = async () => {
             try {
                 const data: NewsArticle[] = await fetchFormData("/news", { method: "GET" })
+                console.log(data)
                 setArticles(data)
 
             } catch (e) {
                 console.error("Error fetch")
                 toast({
-                    title: "Articles can't be fetched",
+                    title: `Articles can't be fetched ,${e.toString()}`,
                     description: "...",
                     variant: "destructive",
                 });

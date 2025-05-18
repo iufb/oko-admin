@@ -87,7 +87,14 @@ const NewsForm: React.FC<NewsFormProps> = ({ initialData, onSubmit, isEditing = 
         uploader: {
             insertImageAsBase64URI: true
         },
-        removeButtons: ['file']
+        removeButtons: ['file'],
+        events: {
+            afterInsertImage: function (image) {
+                image.classList.add('img-responsive');
+                image.style.maxWidth = '100%';
+                image.style.height = 'auto';
+            }
+        }
     };
 
     return (

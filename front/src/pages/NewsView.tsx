@@ -1,8 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { NewsContext } from '@/context/NewsContext';
-import { toast } from '@/hooks/use-toast';
 import { NewsArticle } from '@/types';
-import { ArrowLeft, Calendar, User } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, useRoute } from 'wouter';
 
@@ -15,22 +14,9 @@ const NewsView: React.FC = () => {
     useEffect(() => {
         if (params?.id) {
             const foundArticle = getArticleById(params.id);
-            if (foundArticle) {
-                setArticle(foundArticle);
-            } else {
-                const isAdmin = localStorage.getItem('user') !== null;
-                if (isAdmin) {
-                    setArticle(foundArticle);
-                    toast({
-                        title: "Preview Mode",
-                        description: "This article is not published. Only admins can see it.",
-                        variant: "default",
-                    });
-                } else {
-                    setNotFound(true);
-                }
-            }
-        } else {
+            setArticle(foundArticle);
+        }
+        else {
             setNotFound(true);
 
         }
@@ -69,42 +55,14 @@ const NewsView: React.FC = () => {
     return (
         <div className="min-h-screen bg-white">
             {/* Hero image */}
-            <div
-                className="w-full h-80 md:h-96 bg-cover bg-center relative"
-                style={{ backgroundImage: `url(${import.meta.env.VITE_BACKENDURL + '/' + article.image})` }}
-            >
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/70"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-                    <div className="max-w-4xl mx-auto">
-                        <h1 className="text-3xl md:text-4xl font-bold mb-4">{article.title}</h1>
-                        <div className="flex flex-wrap items-center text-sm opacity-90">
-                            <span className="flex items-center mr-4">
-                                <Calendar className="mr-1 h-4 w-4" />
-                            </span>
-                            <span className="flex items-center">
-                                <User className="mr-1 h-4 w-4" />
-                                Admin
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             {/* Content */}
-            <div className="max-w-4xl mx-auto px-6 py-12">
+            <div className="max-w-4xl mx-auto px-0 py-0">
                 <div
                     className="prose prose-slate prose-lg max-w-none editor-content"
                     dangerouslySetInnerHTML={{ __html: article.content.html }}
                 ></div>
 
-                <div className="mt-12 border-t border-slate-200 pt-6">
-                    <Link href="/">
-                        <Button variant="outline">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to Articles
-                        </Button>
-                    </Link>
-                </div>
             </div>
         </div>
     );
