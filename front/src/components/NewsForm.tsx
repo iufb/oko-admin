@@ -13,7 +13,7 @@ interface NewsFormProps {
 
 const NewsForm: React.FC<NewsFormProps> = ({ initialData, onSubmit, isEditing = false }) => {
     const [title, setTitle] = useState(initialData?.title || '');
-    const [content, setContent] = useState(initialData?.content || '');
+    const [content, setContent] = useState(initialData?.text || '');
     const [image, setImage] = useState<null | File | string>(initialData?.image || null);
     const [titleError, setTitleError] = useState('');
     const [contentError, setContentError] = useState('');
@@ -22,6 +22,7 @@ const NewsForm: React.FC<NewsFormProps> = ({ initialData, onSubmit, isEditing = 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
+        console.log('clic')
         // Validation
         let isValid = true;
 
@@ -49,7 +50,7 @@ const NewsForm: React.FC<NewsFormProps> = ({ initialData, onSubmit, isEditing = 
         if (isValid) {
             onSubmit({
                 title,
-                content,
+                text: content,
                 image,
             });
         }
@@ -131,8 +132,7 @@ const NewsForm: React.FC<NewsFormProps> = ({ initialData, onSubmit, isEditing = 
                 <JoditEditor
                     value={content}
                     config={editorConfig}
-                    onBlur={(newContent) => setContent(newContent)}
-                    onChange={(newContent) => { }}
+                    onChange={(newContent) => setContent(newContent)}
                 />
                 {contentError && <p className="text-sm text-red-500">{contentError}</p>}
             </div>

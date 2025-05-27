@@ -1,7 +1,7 @@
+import { rGetNewsById } from '@/api/news';
 import Layout from '@/components/Layout';
 import NewsForm from '@/components/NewsForm';
 import { NewsContext } from '@/context/NewsContext';
-import { toast } from '@/hooks/use-toast';
 import { NewsArticle } from '@/types';
 import React, { useContext, useEffect, useState } from 'react';
 import { useLocation, useRoute } from 'wouter';
@@ -13,23 +13,23 @@ const NewsEdit: React.FC = () => {
     const [article, setArticle] = useState<NewsArticle | undefined>(undefined);
 
     useEffect(() => {
-        if (params?.id) {
-            const foundArticle = getArticleById(params.id);
-            if (foundArticle) {
-                setArticle({ ...foundArticle, content: foundArticle.content.html });
+        const fetch = async () => {
+            try {
+                if (!params) throw new Error("Id not found")
+                const article = await rGetNewsById(params.id)
+                if (!article) {
+                    throw new Error('Article not found')
+                }
+                setArticle(article)
+            } catch (e) {
+                console.error(e)
+                navigate('/dashboard')
             }
-            else {
-                toast({
-                    title: "Article not found",
-                    description: "The article you are trying to edit does not exist",
-                    variant: "destructive",
-                });
 
-                console.log(foundArticle)
-                navigate('/dashboard');
-            }
         }
-    }, [params?.id, getArticleById, navigate]);
+        fetch()
+
+    }, [params?.id]);
 
     const handleSubmit = (data: Omit<NewsArticle, 'id' | 'createdAt' | 'updatedAt'>) => {
         if (article) {

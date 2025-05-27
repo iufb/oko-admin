@@ -1,5 +1,5 @@
+import { rCreateNews, rGetNewsById, rGetNewsList, rUpdateNews } from '@/api/news';
 import { useToast } from '@/hooks/use-toast';
-import { fetchFormData } from '@/lib/utils';
 import React, { createContext, ReactNode, useEffect, useState } from 'react';
 import { NewsArticle, NewsContextType } from '../types';
 
@@ -19,43 +19,56 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
     useEffect(() => {
-        const fetchArticles = async () => {
+        const fetch = async () => {
             try {
-                const data: NewsArticle[] = await fetchFormData("/news", { method: "GET" })
-                console.log(data)
-                setArticles(data)
-
+                const articles = await rGetNewsList()
+                if (!articles || articles.length == 0) {
+                    throw new Error('Articles not found')
+                }
+                setArticles(articles)
             } catch (e) {
-                console.error("Error fetch")
-                toast({
-                    title: `Articles can't be fetched ,${e.toString()}`,
-                    description: "...",
-                    variant: "destructive",
-                });
-
+                console.error(e)
 
             }
 
+
+        }
+        fetch()
+
+    }, [])
+
+
+    const getArticleById = async (id: string) => {
+        try {
+            const article = await rGetNewsById(id)
+            if (!article) {
+                throw new Error('Article not found')
+            }
+            return article
+        } catch (e) {
+            console.error(e)
+
         }
 
-        fetchArticles()
-    }, []);
-    console.log(articles)
-
-
-    const getArticleById = (id: string) => {
-        console.log(articles, id)
-        return articles.find(article => article.id == id);
     };
 
     const addArticle = async (articleData: Omit<NewsArticle, 'id' | 'createdAt' | 'updatedAt'>) => {
+        const mapkeys = (k: string) => {
+            if (k == 'content') {
+                return 'text'
+            }
+            if (k == 'image') {
+                return 'media'
+            }
+            return k
+        }
         try {
             const formData = new FormData()
 
             Object.keys(articleData).forEach((k) => {
-                formData.append(k, k == 'content' ? JSON.stringify({ html: articleData.content }) : articleData[k as keyof typeof articleData])
+                formData.append(mapkeys(k), articleData[k as keyof typeof articleData])
             })
-            await fetchFormData('/news', { method: "POST" }, formData,)
+            await rCreateNews(formData)
             toast({
                 title: "Article created",
                 description: "Your article has been successfully created",
@@ -78,9 +91,10 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const formData = new FormData()
 
             Object.keys(articleData).forEach((k) => {
-                formData.append(k, k == 'content' ? JSON.stringify({ html: articleData.content }) : articleData[k as keyof typeof articleData])
+                formData.append(k == 'content' ? 'text' : k, articleData[k as keyof typeof articleData])
             })
-            await fetchFormData(`/news/${id}`, { method: "PUT" }, formData)
+            console.log(id, "CONTEXT")
+            await rUpdateNews(id, formData)
             toast({
                 title: "Article updated",
                 description: "Your article has been successfully updated",

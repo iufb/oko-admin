@@ -1,26 +1,33 @@
+import { rGetNewsById } from '@/api/news';
 import { Button } from '@/components/ui/button';
-import { NewsContext } from '@/context/NewsContext';
 import { NewsArticle } from '@/types';
 import { ArrowLeft } from 'lucide-react';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useRoute } from 'wouter';
 
 const NewsView: React.FC = () => {
     const [match, params] = useRoute<{ id: string }>('/news/:id');
-    const { getArticleById } = useContext(NewsContext);
     const [article, setArticle] = useState<NewsArticle | undefined>(undefined);
     const [notFound, setNotFound] = useState(false);
 
     useEffect(() => {
-        if (params?.id) {
-            const foundArticle = getArticleById(params.id);
-            setArticle(foundArticle);
-        }
-        else {
-            setNotFound(true);
+        const fetch = async () => {
+            try {
+                if (!params) throw new Error("Id not found")
+                const article = await rGetNewsById(params.id)
+                if (!article) {
+                    throw new Error('Article not found')
+                }
+                setArticle(article)
+            } catch (e) {
+                console.error(e)
+                setNotFound(true)
+            }
 
         }
-    }, [params?.id, getArticleById]);
+        fetch()
+
+    }, [params?.id]);
 
     if (notFound) {
         return (
@@ -52,6 +59,7 @@ const NewsView: React.FC = () => {
         );
     }
 
+    console.log(article.text)
     return (
         <div className="min-h-screen bg-white">
             {/* Hero image */}
@@ -60,7 +68,7 @@ const NewsView: React.FC = () => {
             <div className="max-w-4xl mx-auto px-0 py-0">
                 <div
                     className="prose prose-slate prose-lg max-w-none editor-content"
-                    dangerouslySetInnerHTML={{ __html: article.content.html }}
+                    dangerouslySetInnerHTML={{ __html: article.text }}
                 ></div>
 
             </div>

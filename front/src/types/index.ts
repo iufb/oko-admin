@@ -1,7 +1,7 @@
 export interface NewsArticle {
     id: string;
     title: string;
-    content: string;
+    text: string;
     image: string | File;
 }
 
@@ -13,7 +13,7 @@ export interface User {
 export interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
-    login: (username: string, password: string) => boolean;
+    login: (username: string, password: string) => Promise<boolean>;
     logout: () => void;
 }
 
